@@ -58,14 +58,13 @@ def mainparse(text):
 	if len(list_timeslots) == 1:
 
 		print ("There is only one timeslot\n")
-	else:
+	elif len(list_timeslots) > 1:
 		print ("There are several timeslots\n")
+	else:
+		print ("Ther are no timeslots\n")
+
 		
 def testparse(text):
-
-
-
-
 	for i in text:
 		try:
 			subtimeslot =  i['_source']['layers']['gsmtap']['gsmtap.sub_slot']
@@ -113,7 +112,7 @@ list_timeslots = []
 
 
 arg = sys.argv[1]
-if arg == str(1):
+if arg == '0C':
 #	text_bcch = files(1)
 	try:
 		namefile = sys.argv[2]
@@ -122,7 +121,7 @@ if arg == str(1):
 		mainparse(text_bcch)
 	except IndexError:
 		print ('No file\n')
-elif arg == str(2):
+elif arg == 'XC':
 #	text_dcch8 = files(2)
 	try:
 		namefile = sys.argv[2]
