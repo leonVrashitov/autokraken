@@ -121,7 +121,7 @@ if arg == '0C':
 		mainparse(text_bcch)
 	except IndexError:
 		print ('No file\n')
-elif arg == 'XC':
+elif arg == 'XS':
 #	text_dcch8 = files(2)
 	try:
 		namefile = sys.argv[2]
