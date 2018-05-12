@@ -5,7 +5,7 @@ import math
 import sys
 
 def result():
-	x = input('Choose the sub timeslot number\n')
+	x = input('Choose the sub_slot number\n')
 	#of = open('result.txt','w')
 	#for x in list_cipher:
 		#if len(x) != 0:
