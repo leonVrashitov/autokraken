@@ -1,5 +1,6 @@
+#! /usr/bin/env python3
+
 import json
-from pcapng import FileScanner
 import math
 
 
