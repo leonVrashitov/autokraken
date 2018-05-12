@@ -61,7 +61,7 @@ def mainparse(text):
 	elif len(list_timeslots) > 1:
 		print ("There are several timeslots\n")
 	else:
-		print ("Ther are no timeslots\n")
+		print ("There are no timeslots\n")
 
 		
 def testparse(text):
