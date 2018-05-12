@@ -1,5 +1,9 @@
-krakenpath=/kraken/kraken/Kraken
-utilspath=/kraken/kraken/Utilities
+#kraken=/kraken/kraken
+kraken=/root/tp/radio/kraken
+
+krakenpath=$kraken/Kraken
+utilspath=$kraken/Utilities
+unset kraken
 
 usage() {
 	cat <<EOF

@@ -14,13 +14,12 @@ frame=$2
 (( `wc -l $file.$frame.emptyframeplain | awk '{print $1}'` != 4 )) && echo Error: the number of bursts in $file.$frame.emptyframeplain not equal to four. && exit 1
 
 #is there a faster way to feed the array?
-i=0; for burst in `cut -f4 -d' ' $file.$frame.emptyframeplain`; do
+i=0; for burst in `cut -f3 -d' ' $file.$frame.emptyframeplain`; do
 	plainburst[$i]=$burst
 	i=$(( i += 1 ))
 done; unset burst i
 
-#TODO check C1 C0 C0 C0 cipherbursts
-i=0; for cipherburst in `cut -f4 -d' ' $file.$frame.emptyframecipher`; do
+i=0; for cipherburst in `cut -f3 -d' ' $file.$frame.emptyframecipher`; do
 	python $utilspath/xor.py ${plainburst[$i]} $cipherburst
 	i=$(( i += 1 ))
 	(( i == 4 )) && i=0

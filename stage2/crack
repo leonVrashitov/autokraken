@@ -17,7 +17,7 @@ EOF
 bsfile=$1
 frame=$2
 
-./feedcrackemptyframe $bsfile $frame
+./feedemptyframe $bsfile $frame
 echo ''
 
 cd $krakenpath/

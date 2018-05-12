@@ -9,3 +9,7 @@
 
 - keep thinking on improving the next frame boundary, x6x51? or x7x51?
 
+## obsolete
+
+- check C1 C0 C0 C0 cipherbursts
+

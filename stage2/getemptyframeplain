@@ -11,10 +11,10 @@ burst() {
 	burst2=$(( $frame + 1 ))
 	burst3=$(( $frame + 2 ))
 	burst4=$(( $frame + 3 ))
-	grep "^C1 $frame "  $file
-	grep "^C0 $burst2 " $file
-	grep "^C0 $burst3 " $file
-	grep "^C0 $burst4 " $file
+	grep "^$frame "  $file
+	grep "^$burst2 " $file
+	grep "^$burst3 " $file
+	grep "^$burst4 " $file
 	unset burst2 burst3 burst4
 }
 

@@ -18,10 +18,10 @@ for burst in $sequence; do
 	burst2=$(( $burst + 1 ))
 	burst3=$(( $burst + 2 ))
 	burst4=$(( $burst + 3 ))
-	grep "^C1 $burst "  $file
-	grep "^C0 $burst2 " $file
-	grep "^C0 $burst3 " $file
-	grep "^C0 $burst4 " $file
+	grep "$burst "  $file
+	grep "$burst2 " $file
+	grep "$burst3 " $file
+	grep "$burst4 " $file
 	unset burst2 burst3 burst4
 done > $file.$frame.emptyframecipher && echo $file.$frame.emptyframecipher; unset burst
 
