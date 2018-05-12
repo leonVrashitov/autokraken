@@ -1,0 +1,21 @@
+#!/bin/bash
+
+usage() {
+	cat <<EOF
+
+usage: <cfile> <arfcn> <timeslot>
+
+EOF
+	exit 1
+}
+
+[[ -z $3 ]] && usage
+
+cfile=$1
+arfcn=$2
+slot=$3
+
+echo -n "bit strings for SDCCH/8 timeslot $slot: "
+grgsm_decode -a $arfcn -c $cfile -m SDCCH8 -t $slot -p > $cfile.${slot}S \
+	&& echo $cfile.${slot}S
+
