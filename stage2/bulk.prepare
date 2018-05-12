@@ -1,0 +1,29 @@
+#!/bin/bash
+
+. ./feedcrack.lib
+
+runframes() {
+echo GENERATING XORS FOR FRAMES $frames
+for frame in $frames; do
+        ./feedcrackemptyframe $cfile.1S $frame
+        wc -l $cfile.1S.$frame.emptyframe234
+        cat $cfile.1S.$frame.emptyframe234 >> $krakenpath/lili
+done; unset frame
+}
+
+rm -f $krakenpath/lili
+
+cfile=7/arfcn70.cfile
+frames=`awk '{print $1}' frames7`
+runframes
+echo ''
+
+cfile=8/arfcn70.cfile
+frames=`awk '{print $1}' frames8`
+runframes
+echo ''
+
+echo ###########################
+wc -l $krakenpath/lili
+echo ###########################
+

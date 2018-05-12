@@ -1,0 +1,22 @@
+#!/bin/ksh
+
+. ./feedcrack.lib
+
+[[ -z $2 ]] && usage
+
+file=$1
+frame=$2
+
+burst() {
+	burst2=$(( $frame + 1 ))
+	burst3=$(( $frame + 2 ))
+	burst4=$(( $frame + 3 ))
+	grep "^C1 $frame "  $file
+	grep "^C0 $burst2 " $file
+	grep "^C0 $burst3 " $file
+	grep "^C0 $burst4 " $file
+	unset burst2 burst3 burst4
+}
+
+burst > $file.$frame.emptyframeplain && echo $file.$frame.emptyframeplain
+

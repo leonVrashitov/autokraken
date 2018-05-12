@@ -1,0 +1,39 @@
+#!/bin/ksh
+set -e
+
+utilspath=/kraken/kraken/Utilities
+
+usage() {
+	cat <<EOF
+
+	usage: $0 <bitstring> <file prefix1234>
+
+EOF
+	exit 1
+}
+
+[[ -z $2 ]] && usage
+
+bitstring=$1
+prefix1234=$2
+
+line=`sed -n "/$bitstring/=" $prefix1234`
+echo found that xor from cipher burst $line
+echo ''
+
+previous=$(($line - 1))
+
+echo lines $previous and $line:
+sed -n "$previous,${line}p" ${prefix1234%1234}cipher
+echo ''
+
+derivative=`sed -n "${line}p"     ${prefix1234%1234}cipher | awk '{print $3}' | sed 's/:$//'`
+deprevious=`sed -n "${previous}p" ${prefix1234%1234}cipher | awk '{print $3}' | sed 's/:$//'`
+
+previousxor=`sed -n "${previous}p" $prefix1234`
+
+echo with xor burst $previous:
+echo ''
+
+echo $utilspath/find_kc foundkey bitpos $derivative $deprevious $previousxor
+

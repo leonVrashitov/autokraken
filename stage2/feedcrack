@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+. ./feedcrack.lib
+
+[[ -z $2 ]] && usage
+
+file=$1
+frame=$2
+
+./getburstsplain  $file $frame
+./getburstscipher $file $frame
+
+(( `wc -l $file.$frame.plain | awk '{print $1}'` != 4 )) && echo Error: the number of bursts available as plain text is not equal to four. && exit 1
+
+#is there a faster way to feed the array?
+i=0; for burst in `cut -f4 -d' ' $file.$frame.plain`; do
+	plainburst[$i]=$burst
+	i=$(( i += 1 ))
+done; unset burst i
+
+#TODO check C1 C0 C0 C0 cipherbursts
+i=0; for cipherburst in `cut -f4 -d' ' $file.$frame.cipher`; do
+	python $utilspath/xor.py ${plainburst[$i]} $cipherburst
+	i=$(( i += 1 ))
+	(( i == 4 )) && i=0
+done > $file.$frame.1234 && echo $file.$frame.1234; unset burst i
+
+i=0; for xor in `cat $file.$frame.1234`; do
+	(( i == 0 )) || echo crack $xor
+	i=$(( i += 1 ))
+	(( i == 4 )) && i=0
+done > $file.$frame.234 && echo $file.$frame.234; unset xor i
+

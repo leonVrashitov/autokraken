@@ -1,0 +1,17 @@
+#!/bin/ksh
+
+. ./feedcrack.lib
+
+[[ -z $2 ]] && usage
+
+file=$1
+frame=$2
+
+(( frame4 = $frame + 3 ))
+hex=`egrep "^[[:space:]]*$frame4 1: " $file | cut -f3- -d' '`
+echo $hex
+hex=`echo $hex | sed -r 's/^([[:digit:]][[:digit:]]) [[:digit:]][[:digit:]] /\1 00 /'`
+echo $hex
+
+gsmframecoder $hex | grep ^[[:digit:]] > $file.$frame.plain && echo $file.$frame.plain
+

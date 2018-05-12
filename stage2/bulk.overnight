@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. ./feedcrack.lib
+
+date
+echo -n cracking lili...
+cd $krakenpath/
+time ./kraken ../indexes < lili > lili.output 2>&1 && echo lili.output all done \
+	|| echo lili.output did not complete
+date
+
