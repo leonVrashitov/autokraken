@@ -21,8 +21,8 @@ grgsm_decode -a $arfcn -c $cfile -m SDCCH8 -t $slot
 sleep 0.5
 pkill tcpdump && echo tcpdump killed ok
 
-echo -n "json for SDCCH/8 timeslot $slot: "
+echo -n "json for SDCCH/8 timeslot $slot... "
 tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T text 2>/dev/null | grep Ciphering
 tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T json > $cfile.${slot}S.json 2>/dev/null \
-	&& echo $cfile.${slot}S.json && ln -sf $cfile.${slot}S.json mega2 && ls -lhF mega2
+	&& echo $cfile.${slot}S.json
 

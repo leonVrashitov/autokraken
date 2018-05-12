@@ -20,7 +20,7 @@ grgsm_decode -a $arfcn -c $cfile -m BCCH -t 0
 sleep 0.5
 pkill tcpdump && echo tcpdump killed ok
 
-echo -n "json for BCCH timeslot 0: "
+echo -n "json for BCCH timeslot 0... "
 tshark -2 -R '!icmp && gsmtap' -r $cfile.0C.pcap -T json > $cfile.0C.json 2>/dev/null \
-	&& echo $cfile.0C.json && ln -sf $cfile.0C.json mega1 && ls -lhF mega1
+	&& echo $cfile.0C.json
 

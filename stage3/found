@@ -1,0 +1,38 @@
+#!/bin/ksh
+
+input=lili.output
+
+[[ $1 = -v ]] && verbose=1
+
+xors=`grep -B2 ^Found $input | grep ^Cracking | awk '{print $2}'`
+#found1=`for xor in $xors; do grep -A1 $xor $input | grep ^Found; done; unset xor`
+
+[[ -n $verbose ]] && echo found `echo "$xors" | wc -l` valid xors
+#echo "$found1" | wc -l
+#(( $xors != $found1 )) && echo amount of xors does not match amount of found1 && exit 1
+
+for xor in $xors; do
+	found1=`grep -A1 $xor $input | grep ^Found | awk '{print $2, $4}'`
+	prefix1234=`grep --with-filename $xor /data/gsm/*/*1234 | cut -f1 -d:`
+	[[ -z $prefix1234 ]] && echo that xor is not found on \*/\*1234: $xor && exit 1
+	[[ -n $verbose ]] && echo found xor in $prefix1234
+	[[ -n $verbose ]] && echo ==\> $found1
+	line=`sed -n "/$xor/=" $prefix1234`
+	previous=$(($line - 1))
+
+	derivative=`sed -n "${line}p"     ${prefix1234%1234}cipher | awk '{print $3}' | sed 's/:$//'`
+	deprevious=`sed -n "${previous}p" ${prefix1234%1234}cipher | awk '{print $3}' | sed 's/:$//'`
+	previousxor=`sed -n "${previous}p" $prefix1234`
+
+	key=`/kraken/kraken/Utilities/find_kc $found1 $derivative $deprevious $previousxor \
+		| grep MATCH \
+		| sed -r 's/^KC.*: ([[:alnum:] ]+) \*.*$/\1/; s/ $//' | sed 's/^/0x/; s/ /,0x/g'`
+
+	#[[ -n $key ]] && echo "${prefix1234%\.1S\.*} $key"
+	[[ -n $key ]] && echo "${prefix1234%\.emptyframe1234} $key"
+
+	unset key
+	unset line file found1
+	unset derivative deprevious
+done; unset xor
+
