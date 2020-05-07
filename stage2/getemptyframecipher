@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./feedcrack.lib
+. ./feedcrack.lib.bash
 
 [[ -z $1 ]] && usage
 [[ -z $2 ]] && usage
