@@ -1,4 +1,26 @@
-# Usage
+# Autokraken
+
+_Warning: those are currently dirty drafts.  It works for us but would need to be heavily reviewed to work any other platform._
+
+A set of scripts to automate the cracking of captured GSM/G2 network traffic with Kraken, and to extract SMS and voice calls out of it.  This is not frequency hopping capable.
+
+## Requirements
+
+Few command line utilities
+
+        which sed
+        which awk
+        which grep
+        which cut
+        which wc
+
+Few packages
+
+        apt install python3 tcpdump tshark gr-gsm -y
+
+Optionally `gsmframedecoder` when dealing with SI5 instead of idling frames, but then you would also need the legacy Airprobe code to get the HEX version of the bursts
+
+And of course Kraken with ready to serve rainbow table indexes
 
 ## Stage 1
 
