@@ -1,26 +1,22 @@
 #!/bin/ksh
 set -e
 
-. ./feedcrack.lib.bash
+. ./feedcrack.conf
 
-usageabs() {
-	cat <<EOF
-
-usage: ${0##*/} <ASOLUTE PATH bitstring file> <plain text frame number>
-
-EOF
+function usage {
+	echo 'usage: ${0##*/} <ABSOLUTE PATH bitstring file> <plain text frame number>'
         exit 1
 }
 
-[[ -z $2 ]] && usageabs
+[[ -z $2 ]] && usage
 
-bsfile=$1
+bitstreamfile=$1
 frame=$2
 
-./feedemptyframe $bsfile $frame
-echo ''
+./feedemptyframe $bitstreamfile $frame
+echo
 
 cd $krakenpath/
-./kraken ../indexes < $bsfile.$frame.emptyframe234
-echo ''
+./kraken ../indexes < $bitstreamfile.$frame.emptyframe234
+echo
 

@@ -1,6 +1,11 @@
 #!/bin/ksh
 
-. ./feedcrack.lib.bash
+. ./feedcrack.conf
+
+usage() {
+        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
+        exit 1
+}
 
 [[ -z $2 ]] && usage
 

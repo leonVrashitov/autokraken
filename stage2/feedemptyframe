@@ -1,34 +1,47 @@
 #!/bin/bash
 set -e
 
-. ./feedcrack.lib.bash
+. ./feedcrack.conf
+
+usage() {
+        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
+        exit 1
+}
 
 [[ -z $2 ]] && usage
 
 file=$1
 frame=$2
 
+[[ ! -f $file ]] && echo file $file not found && exit 1
+[[ ! -x $utilspath/xor.py ]] && echo executable $utilspath/xor.py not found && exit 1
+
 ./getemptyframeplain  $file $frame
+
+(( `wc -l $file.$frame.emptyframeplain | awk '{print $1}'` != 4 )) && \
+	echo Error: too much lines in $file.$frame.emptyframeplain && exit 1
+
 ./getemptyframecipher $file $frame
 
-(( `wc -l $file.$frame.emptyframeplain | awk '{print $1}'` != 4 )) && echo Error: the number of bursts in $file.$frame.emptyframeplain not equal to four. && exit 1
-
 #is there a faster way to feed the array?
-i=0; for burst in `cut -f3 -d' ' $file.$frame.emptyframeplain`; do
+i=0
+for burst in `cut -f3 -d' ' $file.$frame.emptyframeplain`; do
 	plainburst[$i]=$burst
-	i=$(( i += 1 ))
+	(( i += 1 ))
 done; unset burst i
 
-i=0; for cipherburst in `cut -f3 -d' ' $file.$frame.emptyframecipher`; do
+i=0
+for cipherburst in `cut -f3 -d' ' $file.$frame.emptyframecipher`; do
 	python $utilspath/xor.py ${plainburst[$i]} $cipherburst
-	i=$(( i += 1 ))
-	(( i == 4 )) && i=0
+	(( i += 1 ))
+	(( i == 4 )) && (( i = 0 ))
 done > $file.$frame.emptyframe1234 && echo $file.$frame.emptyframe1234; unset burst i
 
-i=0; for xor in `cat $file.$frame.emptyframe1234`; do
+i=0
+for xor in `cat $file.$frame.emptyframe1234`; do
 	(( i == 0 )) || echo crack $xor
-	i=$(( i += 1 ))
-	(( i == 4 )) && i=0
+	(( i += 1 ))
+	(( i == 4 )) && (( i = 0 ))
 done > $file.$frame.emptyframe234 && echo $file.$frame.emptyframe234; unset xor i
 
 tmp=`wc -l $file.$frame.emptyframe234 | awk '{print $1}'`

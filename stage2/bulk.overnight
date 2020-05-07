@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./feedcrack.lib.bash
+. ./feedcrack.conf
 
 date
 echo -n cracking lili...

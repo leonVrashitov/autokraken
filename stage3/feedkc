@@ -1,14 +1,10 @@
-#!/bin/ksh
+#!/bin/bash
 set -e
 
-utilspath=/kraken/kraken/Utilities
+utilspath=/root/KRAKEN/kraken/Utilities
 
 usage() {
-	cat <<EOF
-
-	usage: $0 <bitstring> <file prefix1234>
-
-EOF
+	echo 'usage: $0 <xored bitstring> <prefix1234 file>'
 	exit 1
 }
 
@@ -17,23 +13,26 @@ EOF
 bitstring=$1
 prefix1234=$2
 
+[[ ! -f $prefix1234 ]] && echo file $prefix1234 not found && exit 1
+
 line=`sed -n "/$bitstring/=" $prefix1234`
-echo found that xor from cipher burst $line
-echo ''
+echo xor found on line $line
+echo
 
-previous=$(($line - 1))
+previousline=$(($line - 1))
+echo corresponding enciphered bitstrings lines $previousline and $line
+sed -n "$previousline,${line}p" ${prefix1234%1234}cipher
+echo
 
-echo lines $previous and $line:
-sed -n "$previous,${line}p" ${prefix1234%1234}cipher
-echo ''
+framecount=`sed -n "${line}p"		${prefix1234%1234}cipher | awk '{print $2}' | sed 's/:$//'`
+framecount2=`sed -n "${previousline}p"	${prefix1234%1234}cipher | awk '{print $2}' | sed 's/:$//'`
 
-derivative=`sed -n "${line}p"     ${prefix1234%1234}cipher | awk '{print $3}' | sed 's/:$//'`
-deprevious=`sed -n "${previous}p" ${prefix1234%1234}cipher | awk '{print $3}' | sed 's/:$//'`
+burst2=`sed -n "${previousline}p" $prefix1234`
+echo xored burst2 for line $previousline
+echo $burst2
+echo
 
-previousxor=`sed -n "${previous}p" $prefix1234`
-
-echo with xor burst $previous:
-echo ''
-
-echo $utilspath/find_kc foundkey bitpos $derivative $deprevious $previousxor
+echo command line template
+echo $utilspath/find_kc FOUND-KEY BIT-POSITION $framecount $framecount2 $burst2
+echo
 

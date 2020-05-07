@@ -1,8 +1,12 @@
 #!/bin/bash
 
-. ./feedcrack.lib.bash
+. ./feedcrack.conf
 
-[[ -z $1 ]] && usage
+usage() {
+        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
+        exit 1
+}
+
 [[ -z $2 ]] && usage
 
 file=$1
