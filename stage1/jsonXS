@@ -1,11 +1,7 @@
 #!/bin/bash
 
 usage() {
-	cat <<EOF
-
-usage: <cfile> <arfcn> <timeslot>
-
-EOF
+	echo "usage: $0 <cfile> <arfcn> <timeslot>"
 	exit 1
 }
 
@@ -15,15 +11,20 @@ cfile=$1
 arfcn=$2
 slot=$3
 
+echo writing to $cfile.${slot}S.pcap
 #overrides ok
 tcpdump -i lo -w $cfile.${slot}S.pcap &
 grgsm_decode -a $arfcn -c $cfile -m SDCCH8 -t $slot
 sleep 0.5
 pkill tcpdump && echo tcpdump killed ok
 
-echo -n "json for SDCCH/8 timeslot $slot... "
-tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T text 2>/dev/null | tee $cfile.${slot}S.text \
-	| grep Ciphering
-tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T json > $cfile.${slot}S.json 2>/dev/null \
-	&& echo $cfile.${slot}S.json
+echo -n "writing SDCCH/8 timeslot $slot to $cfile.${slot}S.text ... "
+tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T text -V \
+	> $cfile.${slot}S.text 2>/dev/null && echo done
+
+grep 'Ciphering Mode Command' $cfile.${slot}S.text | sort -u
+
+echo -n "writing SDCCH/8 timeslot $slot to $cfile.${slot}S.json ... "
+tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T json \
+	> $cfile.${slot}S.json 2>/dev/null && echo done
 
