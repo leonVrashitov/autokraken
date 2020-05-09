@@ -1,0 +1,10 @@
+#!/bin/bash
+
+[[ -z $1 ]] && echo ARFCN? && exit 1
+
+arfcn=$1
+cfile=/root/capture/$arfcn.cfile
+
+echo looking into $cfile.0C.text
+grep ^GSM $cfile.0C.text | grep -v '^GSM TAP'
+

