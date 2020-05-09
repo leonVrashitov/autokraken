@@ -1,16 +1,17 @@
 #!/bin/bash
 set -e
 
-[[ -z $2 ]] && echo ARFCN AND TIMESLOT? && exit 1
+[[ -z $3 ]] && echo ARFCN TIMESLOT SUBCHANNEL? && exit 1
 
 arfcn=$1
 slot=$2
+sub=$3
 cfile=/root/capture/$arfcn.cfile
 
 echo writing to $cfile.${slot}S.pcap
 #overrides ok
 tcpdump -i lo -w $cfile.${slot}S.pcap &
-grgsm_decode -a $arfcn -c $cfile -m SDCCH8 -t $slot --print-bursts > $cfile.${slot}S
+grgsm_decode -a $arfcn -c $cfile -m SDCCH8 -t $slot --subslot=$sub --print-bursts > $cfile.${slot}S
 sleep 0.5
 pkill tcpdump && echo tcpdump killed ok
 

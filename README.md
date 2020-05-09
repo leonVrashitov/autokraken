@@ -37,12 +37,12 @@ You can separate stages 0,1 and 2,3 for resp. capturing and cracking.  Simply se
 
 _requires GR-GSM and a cfile_
 
-Extract 0C and find out about the SDCCH timeslot and subchannel to track
+Extract broadcast control channel
 
         cd /root/KRAKEN/autokraken/stage1/
-
-	# gsm_a.dtap.msg_rr_type==0x3f
 	./json0C $arfcn
+
+and find out about the SDCCH timeslot and subchannel to track
 
 	#./parse.py 0C $cfile.0C.json
 	./grabIA $arfcn
@@ -50,9 +50,10 @@ Extract 0C and find out about the SDCCH timeslot and subchannel to track
 	slot=
 	sub=
 
-Extract (TIMESLOT)S and look for idling frames around the Ciphering Mode Command
+Extract dedicated control channel and look for idling frames around the Ciphering Mode Command.  It is necessary here to specify the subchannel so we won't get any irrelevant frames and bitstrings to crack later-on.
 
-	./jsonXS $arfcn $slot
+	echo $arfcn $slot $sub
+	./jsonXS $arfcn $slot $sub
 
 If you don't find the CMC it might be because there's hopping going on.  Look closer at the IA and hopping friends in SI1.
 
@@ -69,7 +70,7 @@ Also have a look at Timing Advance in case it is not `x00` already.
 
 Eventually send the bitstring file to the Kraken server.
 
-	scp $cfile.${slot}S kraken:/root/capture/
+	scp ~/capture/$arfcn.cfile.${slot}S kraken:/root/capture/
 
 ## Stage 2 - define the cipher-text frames
 
@@ -77,7 +78,7 @@ _requires Kraken and the bitstring file_
 
 	screen -S KRAKEN
 	cd /root/KRAKEN/autokraken/stage2/
-	string=/root/capture/$arfcn.cfile.1S
+	string=/root/capture/$arfcn.cfile.${slot}S
 	echo $plainframe
 
 Tune your path against Kraken and Utilities
