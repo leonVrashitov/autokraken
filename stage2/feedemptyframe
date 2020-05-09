@@ -14,7 +14,7 @@ file=$1
 frame=$2
 
 [[ ! -f $file ]] && echo file $file not found && exit 1
-[[ ! -x $utilspath/xor.py ]] && echo executable $utilspath/xor.py not found && exit 1
+[[ ! -f $utilspath/xor.py ]] && echo file $utilspath/xor.py not found && exit 1
 
 ./getemptyframeplain  $file $frame
 
