@@ -24,37 +24,44 @@ And of course Kraken with ready to serve rainbow table indexes
 
 ## Introduction
 
-You can separate stage 0,1 and 2 for resp. capturing and cracking.  Simply send the bitstring file from the former to the latter and proceed.
+You can separate stages 0,1 and 2,3 for resp. capturing and cracking.  Simply send the bitstring file from the former to the latter and proceed.
 
 ## Stage 0 - capture and get the cfile(s) ready
 
 	arfcn=
 
+        cd /root/KRAKEN/autokraken/stage0/
 	./capture.bash $arfcn
 
 ## Stage 1 - define known plain-text frame
 
 _requires GR-GSM and a cfile_
 
-Extract 0C and find out about the SDCCH timeslot (TODO: and subchannel)
-
-        cfile=/root/capture/$arfcn.cfile
+Extract 0C and find out about the SDCCH timeslot and subchannel to track
 
         cd /root/KRAKEN/autokraken/stage1/
+
+	# gsm_a.dtap.msg_rr_type==0x3f
 	./json0C $arfcn
-	./parse.py 0C $cfile.0C.json
 
-	slot=1
+	#./parse.py 0C $cfile.0C.json
+	./grabIA $arfcn
 
-Look for idling frames around the Ciphering Mode Command
+	slot=
+	sub=
+
+Extract (TIMESLOT)S and look for idling frames around the Ciphering Mode Command
 
 	./jsonXS $arfcn $slot
 
 If you don't find the CMC it might be because there's hopping going on.  Look closer at the IA and hopping friends in SI1.
 
-Now seek for the last known idle frame
+Check that's A5/1 we've got here and not A5/3.
 
-	./parse.py XS $cfile.${slot}S.json
+Now seek for idling frames around the Ciphering Mode Command
+
+	#./parse.py XS $cfile.${slot}S.json
+	./grabCMC $arfcn $slot $sub
 
 	plainframe=
 

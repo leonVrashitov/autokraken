@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 [[ -z $1 ]] && echo ARFCN? && exit 1
 
