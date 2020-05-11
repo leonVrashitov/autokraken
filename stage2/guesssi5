@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+. ./feedcrack.conf
+
+[[ -z $2 ]] && echo BITSTRING FILE AND PLAIN-TEXT FRAME NUMBER? && exit 1
+
+file=$1
+frame=$2
+
+echo writing guessed bursts to /root/capture/si5.guessed
+rm -f /root/capture/si5.guessed
+for guess in 102 204 306 408; do
+	(( burst = frame + guess ))
+	(( burst2 = burst + 1 ))
+	(( burst3 = burst + 2 ))
+	(( burst4 = burst + 3 ))
+	grep "$burst " $file >> /root/capture/si5.guessed.num && echo -n GOT +$guess bursts 1
+	grep "$burst2 " $file >> /root/capture/si5.guessed.num && echo -n ,2
+	grep "$burst3 " $file >> /root/capture/si5.guessed.num && echo -n ,3
+	grep "$burst4 " $file >> /root/capture/si5.guessed.num && echo ,4
+	unset burst burst2 burst3 burst4
+done; unset guess
+
+cut -f3 -d' ' /root/capture/si5.guessed.num > /root/capture/si5.guessed
+
+wc -l /root/capture/si5.guessed.num
+wc -l /root/capture/si5.guessed
+

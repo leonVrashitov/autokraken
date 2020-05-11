@@ -3,37 +3,44 @@ set -e
 
 . ./feedcrack.conf
 
-usage() {
-        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
-        exit 1
-}
+[[ -z $2 ]] && echo BITSTRING FILE AND PLAIN-TEXT FRAME NUMBER? && exit 1
+[[ ! -f $utilspath/xor.py ]] && echo file $utilspath/xor.py not found && exit 1
 
-[[ -z $2 ]] && usage
-
-file=$1
-frame=$2
-
-./getburstsplain  $file $frame
-./getburstscipher $file $frame
-
-(( `wc -l $file.$frame.plain | awk '{print $1}'` != 4 )) && echo Error: the number of bursts available as plain text is not equal to four. && exit 1
+#./getburstsplain $file $frame
+#./getburstscipher $file $frame
 
 #is there a faster way to feed the array?
-i=0; for burst in `cut -f4 -d' ' $file.$frame.plain`; do
+echo feeding the plain-text array...
+i=0
+for burst in `cat /root/capture/si5`; do
 	plainburst[$i]=$burst
 	i=$(( i += 1 ))
-done; unset burst i
+done && echo done
+unset burst i
 
 #TODO check C1 C0 C0 C0 cipherbursts
-i=0; for cipherburst in `cut -f4 -d' ' $file.$frame.cipher`; do
-	python $utilspath/xor.py ${plainburst[$i]} $cipherburst
+echo -n writing to /root/capture/xors1234 ...
+i=0
+for burst in `cat /root/capture/si5.guessed`; do
+	python $utilspath/xor.py ${plainburst[$i]} $burst
 	i=$(( i += 1 ))
 	(( i == 4 )) && i=0
-done > $file.$frame.1234 && echo $file.$frame.1234; unset burst i
+done > /root/capture/xors1234 && echo done
+unset burst i
 
-i=0; for xor in `cat $file.$frame.1234`; do
+#prepare stdin for Kraken
+#we want anything but the first burst
+echo -n writing to /root/capture/crackxors ...
+i=0
+for xor in `cat /root/capture/xors1234`; do
 	(( i == 0 )) || echo crack $xor
 	i=$(( i += 1 ))
 	(( i == 4 )) && i=0
-done > $file.$frame.234 && echo $file.$frame.234; unset xor i
+done > /root/capture/crackxors && echo done
+unset xor i
+
+wc -l /root/capture/si5
+wc -l /root/capture/si5.guessed
+wc -l /root/capture/xors1234
+wc -l /root/capture/crackxors
 

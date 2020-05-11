@@ -2,12 +2,7 @@
 
 . ./feedcrack.conf
 
-usage() {
-        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
-        exit 1
-}
-
-[[ -z $2 ]] && usage
+[[ -z $2 ]] && echo BITSTRING FILE AND PLAIN-TEXT FRAME NUMBER? && exit 1
 
 file=$1
 frame=$2

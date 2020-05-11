@@ -2,12 +2,7 @@
 
 . ./feedcrack.conf
 
-usage() {
-        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
-        exit 1
-}
-
-[[ -z $2 ]] && usage
+[[ -z $2 ]] && echo BITSTRING FILE AND PLAIN-TEXT FRAME NUMBER? && exit 1
 
 file=$1
 frame=$2
@@ -23,5 +18,9 @@ burst() {
 	unset burst2 burst3 burst4
 }
 
-burst > $file.$frame.emptyframeplain && echo $file.$frame.emptyframeplain
+echo -n writing frame $frame burst bitstrings to $file.$frame.emptyframeplain ...
+burst > $file.$frame.emptyframeplain && echo done
+
+(( `wc -l $file.$frame.emptyframeplain | awk '{print $1}'` != 4 )) && \
+        echo Error: too much lines in $file.$frame.emptyframeplain && exit 1
 

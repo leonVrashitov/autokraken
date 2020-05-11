@@ -2,12 +2,7 @@
 
 . ./feedcrack.conf
 
-usage() {
-        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
-        exit 1
-}
-
-[[ -z $2 ]] && usage
+[[ -z $2 ]] && echo BITSTRING FILE AND PLAIN-TEXT FRAME NUMBER? && exit 1
 
 file=$1
 frame=$2
@@ -17,6 +12,9 @@ hex=`egrep "^[[:space:]]*$frame4 1: " $file | cut -f3- -d' '`
 echo $hex
 hex=`echo $hex | sed -r 's/^([[:digit:]][[:digit:]]) [[:digit:]][[:digit:]] /\1 00 /'`
 echo $hex
+
+(( `wc -l $file.$frame.plain | awk '{print $1}'` != 4 )) && echo Error: the number of bursts available as
+plain text is not equal to four. && exit 1
 
 gsmframecoder $hex | grep ^[[:digit:]] > $file.$frame.plain && echo $file.$frame.plain
 

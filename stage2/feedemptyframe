@@ -3,12 +3,7 @@ set -e
 
 . ./feedcrack.conf
 
-usage() {
-        echo 'usage: ${0##*/} <bitstring file> <plain text frame number>'
-        exit 1
-}
-
-[[ -z $2 ]] && usage
+[[ -z $2 ]] && echo BITSTRING FILE AND PLAIN-TEXT FRAME NUMBER? && exit 1
 
 file=$1
 frame=$2
@@ -16,33 +11,33 @@ frame=$2
 [[ ! -f $file ]] && echo file $file not found && exit 1
 [[ ! -f $utilspath/xor.py ]] && echo file $utilspath/xor.py not found && exit 1
 
-./getemptyframeplain  $file $frame
-
-(( `wc -l $file.$frame.emptyframeplain | awk '{print $1}'` != 4 )) && \
-	echo Error: too much lines in $file.$frame.emptyframeplain && exit 1
-
-./getemptyframecipher $file $frame
+#./getemptyframeplain $file $frame
+#./getemptyframecipher $file $frame
 
 #is there a faster way to feed the array?
 i=0
 for burst in `cut -f3 -d' ' $file.$frame.emptyframeplain`; do
 	plainburst[$i]=$burst
 	(( i += 1 ))
-done; unset burst i
+	echo $i
+done
+unset burst i
 
 i=0
-for cipherburst in `cut -f3 -d' ' $file.$frame.emptyframecipher`; do
-	python $utilspath/xor.py ${plainburst[$i]} $cipherburst
+for burst in `cut -f3 -d' ' $file.$frame.emptyframecipher`; do
+	python $utilspath/xor.py ${plainburst[$i]} $burst
 	(( i += 1 ))
 	(( i == 4 )) && (( i = 0 ))
-done > $file.$frame.emptyframe1234 && echo $file.$frame.emptyframe1234; unset burst i
+done > $file.$frame.emptyframe1234 && echo $file.$frame.emptyframe1234
+unset burst i
 
 i=0
 for xor in `cat $file.$frame.emptyframe1234`; do
 	(( i == 0 )) || echo crack $xor
 	(( i += 1 ))
 	(( i == 4 )) && (( i = 0 ))
-done > $file.$frame.emptyframe234 && echo $file.$frame.emptyframe234; unset xor i
+done > $file.$frame.emptyframe234 && echo $file.$frame.emptyframe234
+unset xor i
 
 tmp=`wc -l $file.$frame.emptyframe234 | awk '{print $1}'`
 echo there are $tmp xors to crack
