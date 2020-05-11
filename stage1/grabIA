@@ -6,39 +6,15 @@ set -e
 arfcn=$1
 cfile=/root/capture/$arfcn.cfile
 
-# MTS Channel Description
-# 41 80 65
-# MEGAFON Channel Description
-# 49 60 42
-
-# MTS Packet Channel Description
-# 0e b0 25
-# MEGAFON Packet Channel Description
-# 0c 60 42
-# 0d 60 42
-# 0e 60 42
-# 0f 60 42
-
-cat <<EOF
-
-What operator are you reaching?
-
-1. MTS
-2. MEFAFON
-#3. BEELINE
-
-EOF
-read operator
-
-(( operator != 1 && operator != 2 )) && echo wrong operator
-(( operator == 1 )) && circuit=41:80:65
-(( operator == 2 )) && circuit=49:60:42
-#(( operator == 3 )) 77 circuit=
-
-tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type==0x3f && frame[62:3] == $circuit" -r $cfile.0C.pcap -T text -V`
+echo "what pattern are you looking for exactly as for circuit switched IAs?"
+echo -n "enter three bytes in HEX (e.g. 00:00:00) "
+read circuit
 
 	#"Time Slot:" \
 	#"Sub-Slot:" \
+
+tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type==0x3f && \
+	frame[62:3] == $circuit" -r $cfile.0C.pcap -T text -V`
 for pattern in \
 	"GSM Frame Number:" \
 	"Channel Description" \

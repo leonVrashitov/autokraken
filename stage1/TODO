@@ -3,3 +3,9 @@
 # kasumi
 # gsm_a.rr.algorithm_identifier == 2
 
+try with JSON
+
+- when IA "gsm_a.dtap.msg_rr_type": "0x0000003f"
+- grab gsm_a.rr.timeslot
+- grab gsm_a.rr.hopping_channel
+
