@@ -15,7 +15,7 @@ echo func=UI
 tmp=`tshark -2 -R "lapdm.control_field == 0x03 && \
 	lapdm.control_field == 0x03 && \
 	lapdm.length_field == 0x01 && \
-	gsmtap.sub_slot == $sub" -r $cfile.${slot}S.pcap -T text -V`
+	gsmtap.sub_slot == $sub" -r $cfile.${slot}S$sub.pcap -T text -V`
 for pattern in \
 	"GSM Frame Number:" \
 	; do
@@ -26,7 +26,7 @@ echo
 
 echo SI5
 tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type == 0x1d &&
-        gsmtap.sub_slot == $sub" -r $cfile.${slot}S.pcap -T text -V`
+        gsmtap.sub_slot == $sub" -r $cfile.${slot}S$sub.pcap -T text -V`
 for pattern in \
         "GSM Frame Number:" \
         "Message Type:" \
@@ -38,7 +38,7 @@ echo
 
 echo CMC
 tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type == 0x35 && \
-	gsmtap.sub_slot == $sub" -r $cfile.${slot}S.pcap -T text -V`
+	gsmtap.sub_slot == $sub" -r $cfile.${slot}S$sub.pcap -T text -V`
 for pattern in \
         "GSM Frame Number:" \
         "Algorithm identifier:" \

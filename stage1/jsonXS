@@ -8,27 +8,26 @@ slot=$2
 sub=$3
 cfile=/root/capture/$arfcn.cfile
 
-echo writing to $cfile.${slot}S.pcap
+echo writing to $cfile.${slot}S$sub.pcap
+echo writing SDCCH bit strings to $cfile.${slot}S$sub
 #overrides ok
-tcpdump -i lo -w $cfile.${slot}S.pcap &
-grgsm_decode -a $arfcn -c $cfile -m SDCCH8 -t $slot --subslot=$sub --print-bursts > $cfile.${slot}S
+tcpdump -i lo -w $cfile.${slot}S$sub.pcap &
+grgsm_decode -a $arfcn -c $cfile -m SDCCH8 -t $slot -u $sub -p > $cfile.${slot}S$sub \
+		&& echo decoded || echo could not decode $cfile
 sleep 0.5
-pkill tcpdump && echo tcpdump killed ok
+pkill tcpdump && echo tcpdump killed || echo could not kill tcpdump
 
-echo burst bitstring file
-ls -lhF $cfile.${slot}S
+echo burst bitstring file with frame references:
+ls -lhF $cfile.${slot}S$sub
 
-echo -n "writing SDCCH/8 timeslot $slot to $cfile.${slot}S.text ... "
-tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T text -V \
-	> $cfile.${slot}S.text 2>/dev/null && echo done
+echo -n "writing SDCCH/8 timeslot $slot subchannel $sub to $cfile.${slot}S$sub.text ... "
+tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S$sub.pcap -T text -V \
+	> $cfile.${slot}S$sub.text 2>/dev/null && echo done
 
 echo ciphering
-grep 'Ciphering Mode Command' $cfile.${slot}S.text | sort -u
+grep 'Ciphering Mode Command' $cfile.${slot}S$sub.text | sort -u
 
-echo -n "writing SDCCH/8 timeslot $slot to $cfile.${slot}S.json ... "
-tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S.pcap -T json \
-	> $cfile.${slot}S.json 2>/dev/null && echo done
-
-#Produce the burst bitstrings with frame references (it's already there)
-#./bitstringsXS $cfile $arfcn $slot
+echo -n "writing SDCCH/8 timeslot $slot subchannel $sub to $cfile.${slot}S$sub.json ... "
+tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S$sub.pcap -T json \
+	> $cfile.${slot}S$sub.json 2>/dev/null && echo done
 

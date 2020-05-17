@@ -3,10 +3,11 @@ set -e
 
 [[ -z $1 ]] && echo ARFCN? && exit 1
 
-hppm=23
+hppm=10
 arfcn=$1
 cfile=/root/capture/$arfcn.cfile
 
+echo hppm is $hppm
 echo capturing ARFCN $arfcn for 70 seconds into $cfile
 
 #HRF
