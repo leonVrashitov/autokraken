@@ -25,7 +25,7 @@ unset tmp
 echo
 
 echo SI5
-tmp=`tshark -2 -R "gsm_a.dtap.msg_rr_type == 0x1d &&
+tmp=`tshark -2 -R "( gsm_a.dtap.msg_rr_type == 0x1d  || gsm_a.dtap.msg_rr_type == 0x1e ) &&
         gsmtap.sub_slot == $sub" -r $cfile.${slot}S$sub.pcap -T text -V`
 for pattern in \
         "GSM Frame Number:" \

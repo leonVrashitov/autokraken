@@ -1,6 +1,8 @@
+#!/usr/bin/python3
+
 import ujson as json
 
-jsonfile_path = "/root/capture/66.cfile.0C.json"
+jsonfile_path = "/root/capture/CHANGE-THIS.cfile.0C.json"
 
 
 # Read file

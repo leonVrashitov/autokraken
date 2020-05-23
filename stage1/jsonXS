@@ -24,8 +24,10 @@ echo -n "writing SDCCH/8 timeslot $slot subchannel $sub to $cfile.${slot}S$sub.t
 tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S$sub.pcap -T text -V \
 	> $cfile.${slot}S$sub.text 2>/dev/null && echo done
 
+#no -u since this is very dedicated subchannel already
 echo ciphering
-grep 'Ciphering Mode Command' $cfile.${slot}S$sub.text | sort -u
+grep 'Ciphering Mode Command' $cfile.${slot}S$sub.text
+grep 'Algorithm identifier' $cfile.${slot}S$sub.text
 
 echo -n "writing SDCCH/8 timeslot $slot subchannel $sub to $cfile.${slot}S$sub.json ... "
 tshark -2 -R '!icmp && gsmtap' -r $cfile.${slot}S$sub.pcap -T json \
