@@ -3,15 +3,11 @@ set -e
 
 utilspath=/root/KRAKEN/kraken/Utilities
 
-usage() {
-	echo 'usage: $0 <xored bitstring> <prefix1234 file>'
-	exit 1
-}
-
-[[ -z $2 ]] && usage
+[[ -z $3 ]] && echo XORED-BITSTRING AND XOR-FILE-1234? && exit 1
 
 bitstring=$1
 prefix1234=$2
+cipherframes=$3
 
 [[ ! -f $prefix1234 ]] && echo file $prefix1234 not found && exit 1
 
@@ -21,11 +17,11 @@ echo
 
 previousline=$(($line - 1))
 echo corresponding enciphered bitstrings lines $previousline and $line
-sed -n "$previousline,${line}p" ${prefix1234%1234}cipher
+sed -n "$previousline,${line}p" $cipherframes
 echo
 
-framecount=`sed -n "${line}p"		${prefix1234%1234}cipher | awk '{print $2}' | sed 's/:$//'`
-framecount2=`sed -n "${previousline}p"	${prefix1234%1234}cipher | awk '{print $2}' | sed 's/:$//'`
+framecount=`sed -n "${line}p"		$cipherframes | awk '{print $2}' | sed 's/:$//'`
+framecount2=`sed -n "${previousline}p"	$cipherframes | awk '{print $2}' | sed 's/:$//'`
 
 burst2=`sed -n "${previousline}p" $prefix1234`
 echo xored burst2 for line $previousline

@@ -16,29 +16,32 @@ frame=$2
 
 #is there a faster way to feed the array?
 i=0
-for burst in `cut -f3 -d' ' $file.$frame.emptyframeplain`; do
+for burst in `cut -f3 -d' ' /root/capture/crackidleplain`; do
 	plainburst[$i]=$burst
 	(( i += 1 ))
 	echo $i
 done
 unset burst i
 
+echo preparing /root/capture/crackidlexors1234
 i=0
-for burst in `cut -f3 -d' ' $file.$frame.emptyframecipher`; do
+for burst in `cut -f3 -d' ' /root/capture/crackidlecipher`; do
 	python $utilspath/xor.py ${plainburst[$i]} $burst
 	(( i += 1 ))
 	(( i == 4 )) && (( i = 0 ))
-done > $file.$frame.emptyframe1234 && echo $file.$frame.emptyframe1234
+done > /root/capture/crackidlexors1234 && true
 unset burst i
 
+echo preparing /root/capture/crackidlexors
 i=0
-for xor in `cat $file.$frame.emptyframe1234`; do
+for xor in `cat /root/capture/crackidlexors1234`; do
 	(( i == 0 )) || echo crack $xor
 	(( i += 1 ))
 	(( i == 4 )) && (( i = 0 ))
-done > $file.$frame.emptyframe234 && echo $file.$frame.emptyframe234
+done > /root/capture/crackidlexors && true
 unset xor i
 
-tmp=`wc -l $file.$frame.emptyframe234 | awk '{print $1}'`
-echo there are $tmp xors to crack
+wc -l /root/capture/crackidlexors1234
+wc -l /root/capture/crackidlexors
+echo all done
 

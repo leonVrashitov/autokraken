@@ -7,20 +7,25 @@
 file=$1
 frame=$2
 
-#sequence=`echo $(($frame + 357))`
-sequence=`echo $(($frame + 51)) $(($frame + 102)) $(($frame + 153)) $(($frame + 204)) $(($frame + 255)) $(($frame + 306)) $(($frame + 357)) $(($frame + 408)) $(($frame + 459)) $(($frame + 510)) $(($frame + 561)) $(($frame + 612))`
-#x6 x7 ...
-#sequence=`echo $(($frame + 306)) $(($frame + 357)) $(($frame + 408)) $(($frame + 459)) $(($frame + 510)) $(($frame + 561))`
+sequence="$(($frame + 51)) $(($frame + 102)) $(($frame + 153)) $(($frame + 204)) $(($frame + 255)) $(($frame + 306)) $(($frame + 357)) $(($frame + 408)) $(($frame + 459)) $(($frame + 510)) $(($frame + 561)) $(($frame + 612)) $(($frame +663)) $(($frame +714)) $(($frame +765)) $(($frame +816)) $(($frame +867))"
 
-echo working on frame numbers $sequence
+echo working on +51, 102, 153..867 hence frame numbers $sequence
+echo writing to /root/capture/crackidlecipher
+rm -f /root/capture/crackidlecipher
 for burst in $sequence; do
 	burst2=$(( $burst + 1 ))
 	burst3=$(( $burst + 2 ))
 	burst4=$(( $burst + 3 ))
-	grep "$burst "  $file
-	grep "$burst2 " $file
-	grep "$burst3 " $file
-	grep "$burst4 " $file
+
+	echo attempting frame $burst
+	grep "$burst "  $file >> /root/capture/crackidlecipher && echo -n GOT $burst,
+	grep "$burst2 " $file >> /root/capture/crackidlecipher && echo -n 2,
+	grep "$burst3 " $file >> /root/capture/crackidlecipher && echo -n 3,
+	grep "$burst4 " $file >> /root/capture/crackidlecipher && echo 4
+
 	unset burst2 burst3 burst4
-done > $file.$frame.emptyframecipher && echo $file.$frame.emptyframecipher; unset burst
+done
+unset burst
+
+wc -l /root/capture/crackidlecipher
 

@@ -6,24 +6,37 @@ set -e
 [[ -z $2 ]] && echo BITSTRING FILE AND PLAIN-TEXT FRAME NUMBER? && exit 1
 
 file=$1
-frame=$2
+plainframe=$2
 
-echo writing guessed bursts to /root/capture/si5.guessed
+echo plain frame is $plainframe
+
+echo writing guessed bursts to /root/capture/si5.guessed and .guessed.frame
+rm -f /root/capture/si5.guessed.frame
 rm -f /root/capture/si5.guessed
-for guess in 102 204 306 408; do
-	(( burst = frame + guess ))
+(( i = 0 )) && true
+(( guess = plainframe ))
+until (( i > 1000 )); do
+	(( i = i + 102 ))
+	(( guess = guess + 102 ))
+	echo attemping frame $guess \(+$i\)
+
+	(( burst = guess ))
 	(( burst2 = burst + 1 ))
 	(( burst3 = burst + 2 ))
 	(( burst4 = burst + 3 ))
-	grep "$burst " $file >> /root/capture/si5.guessed.num && echo -n GOT +$guess bursts 1
-	grep "$burst2 " $file >> /root/capture/si5.guessed.num && echo -n ,2
-	grep "$burst3 " $file >> /root/capture/si5.guessed.num && echo -n ,3
-	grep "$burst4 " $file >> /root/capture/si5.guessed.num && echo ,4
+
+	grep "$burst " $file >> /root/capture/si5.guessed.frame && echo -n GOT +$guess bursts 1
+	grep "$burst2 " $file >> /root/capture/si5.guessed.frame && echo -n ,2
+	grep "$burst3 " $file >> /root/capture/si5.guessed.frame && echo -n ,3
+	grep "$burst4 " $file >> /root/capture/si5.guessed.frame && echo ,4
+
 	unset burst burst2 burst3 burst4
-done; unset guess
+	#we need to keep guess for a purpose
+done
+unset i
 
-cut -f3 -d' ' /root/capture/si5.guessed.num > /root/capture/si5.guessed
+cut -f3 -d' ' /root/capture/si5.guessed.frame > /root/capture/si5.guessed
 
-wc -l /root/capture/si5.guessed.num
+wc -l /root/capture/si5.guessed.frame
 wc -l /root/capture/si5.guessed
 

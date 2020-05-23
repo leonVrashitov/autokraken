@@ -10,7 +10,7 @@ set -e
 #./getburstscipher $file $frame
 
 #is there a faster way to feed the array?
-echo feeding the plain-text array...
+echo -n feeding the plain-text array...
 i=0
 for burst in `cat /root/capture/si5`; do
 	plainburst[$i]=$burst
@@ -19,20 +19,20 @@ done && echo done
 unset burst i
 
 #TODO check C1 C0 C0 C0 cipherbursts
-echo -n writing to /root/capture/xors1234 ...
+echo -n writing to /root/capture/crackxors1234 ...
 i=0
 for burst in `cat /root/capture/si5.guessed`; do
 	python $utilspath/xor.py ${plainburst[$i]} $burst
 	i=$(( i += 1 ))
 	(( i == 4 )) && i=0
-done > /root/capture/xors1234 && echo done
+done > /root/capture/crackxors1234 && echo done
 unset burst i
 
 #prepare stdin for Kraken
 #we want anything but the first burst
 echo -n writing to /root/capture/crackxors ...
 i=0
-for xor in `cat /root/capture/xors1234`; do
+for xor in `cat /root/capture/crackxors1234`; do
 	(( i == 0 )) || echo crack $xor
 	i=$(( i += 1 ))
 	(( i == 4 )) && i=0
@@ -41,6 +41,6 @@ unset xor i
 
 wc -l /root/capture/si5
 wc -l /root/capture/si5.guessed
-wc -l /root/capture/xors1234
+wc -l /root/capture/crackxors1234
 wc -l /root/capture/crackxors
 
